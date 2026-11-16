@@ -3,20 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#080b0f" />
+    <meta name="theme-color" content="#f7faef" />
     <meta name="description" content="A focused real estate calculation workspace for DOM and land area conversions." />
     <title>ESTATIQ — Real Estate Workspace</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
   </head>
   <body class="workspace-page">
-    <div class="mesh mesh-top" aria-hidden="true"></div>
-    <div class="mesh mesh-bottom" aria-hidden="true"></div>
-    <div class="mesh mesh-lime" aria-hidden="true"></div>
-    <div class="cursor-spotlight" aria-hidden="true"></div>
-
     <header class="topbar">
       <nav class="nav container" aria-label="Main navigation">
         <a href="{{ url_for('home') }}" class="brand" aria-label="ESTATIQ workspace">
@@ -24,11 +16,10 @@
           <span class="brand-name">ESTATIQ</span>
           <span class="brand-divider" aria-hidden="true"></span>
           <span class="brand-workspace">Workspace</span>
-          <span class="status-light status-lime" aria-label="Workspace ready"></span>
         </a>
         <div class="nav-actions">
           <button class="nav-about" id="about-open" type="button">About <span aria-hidden="true">↗</span></button>
-          <button class="theme-toggle" type="button" aria-label="Toggle light theme" data-theme-toggle>
+          <button class="theme-toggle" type="button" aria-label="Toggle color theme" aria-pressed="false" data-theme-toggle>
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"></path></svg>
           </button>
         </div>
@@ -38,29 +29,24 @@
     <main class="workspace-main container">
       <section class="workspace-intro">
         <div class="intro-copy">
-          <p class="eyebrow"><span class="eyebrow-line"></span> ESTATIQ / TOOLS</p>
-          <h1>Your Workflow. <span>Under Control.</span></h1>
-          <p class="intro-subtitle">Two essential tools. Less manual work. More productivity.</p>
+          <p class="eyebrow">ESTATIQ / WORKSPACE</p>
+          <h1>Real estate calculations,<br /><span>made simple.</span></h1>
+          <p class="intro-subtitle">Two focused tools for market timing and land area.</p>
         </div>
-        <div class="intro-meta">
-          <span class="live-pulse"></span>
-          <span>LOCAL WORKSPACE</span>
-          <span class="meta-separator">·</span>
-          <span>READY TO CALCULATE</span>
-        </div>
+        <div class="intro-meta">2 CALCULATORS</div>
       </section>
 
       <section class="workspace-shell" aria-label="Real estate calculators">
         <div class="workspace-toolbar">
           <div class="tab-bar" role="tablist" aria-label="Calculation tools">
             <button class="tab-button active" id="dom-tab-button" data-tab="dom-tab" role="tab" aria-selected="true" aria-controls="dom-tab" type="button">
-              <span class="tab-icon" aria-hidden="true">01</span> Days on Market
+              Days on Market
             </button>
             <button class="tab-button" id="acre-tab-button" data-tab="acre-tab" role="tab" aria-selected="false" aria-controls="acre-tab" type="button">
-              <span class="tab-icon" aria-hidden="true">02</span> Acre to Square Feet
+              Acre to Square Feet
             </button>
           </div>
-          <span class="toolbar-note"><span class="status-light"></span> Calculations stay in your workflow</span>
+          <span class="toolbar-note">Choose a tool to get started</span>
         </div>
 
         <section id="dom-tab" class="workspace-tab active" role="tabpanel" aria-labelledby="dom-tab-button">
@@ -121,19 +107,19 @@
               <div class="summary-grid dom-summary">
                 <article class="summary-card">
                   <span class="summary-label">TOTAL RECORDS</span>
-                  <div class="summary-value"><span class="summary-symbol">▤</span><strong id="dom-total">0</strong></div>
+                  <div class="summary-value"><strong id="dom-total">0</strong></div>
                 </article>
                 <article class="summary-card">
                   <span class="summary-label">AVERAGE DOM</span>
-                  <div class="summary-value"><span class="summary-symbol">◷</span><strong id="dom-average">—</strong><small>days</small></div>
+                  <div class="summary-value"><strong id="dom-average">—</strong><small>days</small></div>
                 </article>
                 <article class="summary-card">
                   <span class="summary-label">HIGHEST DOM</span>
-                  <div class="summary-value"><span class="summary-symbol">↗</span><strong id="dom-highest">—</strong><small>days</small></div>
+                  <div class="summary-value"><strong id="dom-highest">—</strong><small>days</small></div>
                 </article>
                 <article class="summary-card">
                   <span class="summary-label">LOWEST DOM</span>
-                  <div class="summary-value"><span class="summary-symbol">↘</span><strong id="dom-lowest">—</strong><small>days</small></div>
+                  <div class="summary-value"><strong id="dom-lowest">—</strong><small>days</small></div>
                 </article>
               </div>
 
@@ -145,14 +131,14 @@
                   </div>
                   <div class="result-status">
                     <strong class="latest-dom-value" id="dom-latest-value">— DAYS</strong>
-                    <span class="result-live"><span class="status-light status-lime"></span> LIVE</span>
+                    <span class="result-live">LATEST</span>
                   </div>
                 </div>
                 <div class="table-scroll">
                   <table class="results-table">
                     <thead><tr><th>#</th><th>LISTING DATE</th><th>SALE DATE</th><th class="numeric-cell">DAYS ON MARKET</th></tr></thead>
                     <tbody id="dom-results-body">
-                      <tr class="empty-row"><td colspan="4"><span class="empty-icon">⌁</span><br />No calculations yet. Paste a few rows to get started.</td></tr>
+                      <tr class="empty-row"><td colspan="4">No calculations yet. Paste a few rows to get started.</td></tr>
                     </tbody>
                   </table>
                 </div>
@@ -176,7 +162,7 @@
               <h2>Land Area Converter</h2>
               <p class="tool-description">Convert acres into square feet with precision.</p>
             </div>
-            <div class="conversion-badge"><span class="conversion-indicator">↗</span> <strong>1 ACRE</strong><span>=</span><strong>43,560 SQ FT</strong></div>
+            <div class="conversion-badge"><strong>1 ACRE</strong><span>=</span><strong>43,560 SQ FT</strong></div>
           </div>
 
           <div class="acre-layout">
@@ -213,15 +199,15 @@
               <div class="summary-grid acre-summary">
                 <article class="summary-card">
                   <span class="summary-label">TOTAL RECORDS</span>
-                  <div class="summary-value"><span class="summary-symbol">▤</span><strong id="acre-total">0</strong></div>
+                  <div class="summary-value"><strong id="acre-total">0</strong></div>
                 </article>
                 <article class="summary-card">
                   <span class="summary-label">TOTAL AREA</span>
-                  <div class="summary-value"><span class="summary-symbol">⌖</span><strong id="acre-total-area">—</strong><small>acres</small></div>
+                  <div class="summary-value"><strong id="acre-total-area">—</strong><small>acres</small></div>
                 </article>
                 <article class="summary-card">
                   <span class="summary-label">TOTAL SQ FT</span>
-                  <div class="summary-value"><span class="summary-symbol">▦</span><strong id="acre-total-sqft">—</strong></div>
+                  <div class="summary-value"><strong id="acre-total-sqft">—</strong></div>
                 </article>
               </div>
             </div>
@@ -241,12 +227,12 @@
               <div class="acre-results-panel">
                 <div class="results-heading">
                   <div><h3>Bulk results</h3><span id="acre-results-caption">Ready for your entries</span></div>
-                  <span class="result-live"><span class="status-light"></span> LIVE</span>
+                  <span class="result-live">CONVERSIONS</span>
                 </div>
                 <div class="table-scroll acre-table-scroll">
                   <table class="results-table">
                     <thead><tr><th>#</th><th>ACRES</th><th class="numeric-cell">SQUARE FEET</th></tr></thead>
-                    <tbody id="acre-results-body"><tr class="empty-row"><td colspan="3"><span class="empty-icon">⌁</span><br />Your converted values will appear here.</td></tr></tbody>
+                    <tbody id="acre-results-body"><tr class="empty-row"><td colspan="3">Your converted values will appear here.</td></tr></tbody>
                   </table>
                 </div>
                 <div class="result-actions">
@@ -264,14 +250,14 @@
       </section>
 
       <footer class="workspace-footer">
-        <span><span class="footer-mark">E</span> ESTATIQ <span class="footer-separator">/</span> A focused real estate toolkit</span>
+        <span>ESTATIQ <span class="footer-separator">/</span> A focused real estate toolkit</span>
         <span>MM/DD/YYYY <span class="footer-separator">·</span> 1 ACRE = 43,560 SQ FT</span>
       </footer>
     </main>
 
     <dialog class="about-modal" id="about-modal" aria-labelledby="about-title">
       <form method="dialog" class="modal-close-form"><button class="modal-close" aria-label="Close about dialog" type="submit">×</button></form>
-      <span class="modal-kicker"><span class="status-light"></span> A NOTE FROM THE MAKER</span>
+      <span class="modal-kicker">ABOUT ESTATIQ</span>
       <h2 id="about-title">A Little About This Tool</h2>
       <div class="modal-copy">
         <p class="modal-byline">Built by Jerz.</p>

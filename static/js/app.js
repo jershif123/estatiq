@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const $$ = (selector) => Array.from(document.querySelectorAll(selector));
   const domResults = [];
   const acreResults = [];
-  const counterFrames = new WeakMap();
   let toastTimer;
 
   const showToast = (message) => {
@@ -15,53 +14,18 @@ document.addEventListener('DOMContentLoaded', () => {
     toastTimer = window.setTimeout(() => toast.classList.remove('visible'), 2300);
   };
 
-  const flash = (element) => {
-    if (!element) return;
-    element.classList.remove('result-flash');
-    void element.offsetWidth;
-    element.classList.add('result-flash');
-  };
-
-  const animateValue = (element, value) => {
+  const setMetricValue = (element, value) => {
     if (!element) return;
     const target = Number(value);
     if (!Number.isFinite(target)) {
       element.textContent = value;
       return;
     }
-
-    const previousFrame = counterFrames.get(element);
-    if (previousFrame) cancelAnimationFrame(previousFrame);
-    const storedValue = Number(element.dataset.value || 0);
-    const startValue = Number.isFinite(storedValue) ? storedValue : 0;
     const fractionDigits = Number.isInteger(target) ? 0 : 1;
-    const started = performance.now();
-    const duration = 360;
-    element.dataset.value = String(target);
-    const render = (time) => {
-      const progress = Math.min((time - started) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      const current = startValue + (target - startValue) * eased;
-      element.textContent = current.toLocaleString(undefined, {
-        minimumFractionDigits: fractionDigits,
-        maximumFractionDigits: fractionDigits,
-      });
-      if (progress < 1) {
-        counterFrames.set(element, requestAnimationFrame(render));
-      } else {
-        counterFrames.delete(element);
-      }
-    };
-    counterFrames.set(element, requestAnimationFrame(render));
-  };
-
-  const setValueImmediately = (element, value) => {
-    if (!element) return;
-    const previousFrame = counterFrames.get(element);
-    if (previousFrame) cancelAnimationFrame(previousFrame);
-    counterFrames.delete(element);
-    element.dataset.value = Number.isFinite(Number(value)) ? String(value) : '0';
-    element.textContent = String(value);
+    element.textContent = target.toLocaleString(undefined, {
+      minimumFractionDigits: fractionDigits,
+      maximumFractionDigits: fractionDigits,
+    });
   };
 
   const apiPost = async (endpoint, payload) => {
@@ -127,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
     row.className = 'empty-row';
     const cell = document.createElement('td');
     cell.colSpan = columns;
-    cell.innerHTML = `<span class="empty-icon">⌁</span><br />`;
     cell.append(document.createTextNode(message));
     row.appendChild(cell);
     tbody.replaceChildren(row);
@@ -148,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
       $('#dom-results-caption').textContent = 'Your results will appear here';
       ['dom-total', 'dom-average', 'dom-highest', 'dom-lowest'].forEach((id) => {
         const element = document.getElementById(id);
-        setValueImmediately(element, id === 'dom-total' ? 0 : '—');
+        setMetricValue(element, id === 'dom-total' ? 0 : '—');
       });
       $('#dom-latest-value').textContent = '— DAYS';
       return;
@@ -166,14 +129,11 @@ document.addEventListener('DOMContentLoaded', () => {
     tbody.replaceChildren(fragment);
     $('#dom-results-caption').textContent = `${domResults.length} ${domResults.length === 1 ? 'record' : 'records'} calculated`;
     $('#dom-latest-value').textContent = `${domResults[domResults.length - 1].days} DAYS`;
-    flash($('#dom-latest-value'));
-
     const days = domResults.map((item) => item.days);
-    animateValue($('#dom-total'), days.length);
-    animateValue($('#dom-average'), days.reduce((sum, item) => sum + item, 0) / days.length);
-    animateValue($('#dom-highest'), Math.max(...days));
-    animateValue($('#dom-lowest'), Math.min(...days));
-    $$('.dom-summary .summary-card').forEach(flash);
+    setMetricValue($('#dom-total'), days.length);
+    setMetricValue($('#dom-average'), days.reduce((sum, item) => sum + item, 0) / days.length);
+    setMetricValue($('#dom-highest'), Math.max(...days));
+    setMetricValue($('#dom-lowest'), Math.min(...days));
   };
 
   const renderAcreResults = () => {
@@ -184,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
       $('#acre-results-caption').textContent = 'Ready for your entries';
       ['acre-total', 'acre-total-area', 'acre-total-sqft'].forEach((id) => {
         const element = document.getElementById(id);
-        setValueImmediately(element, id === 'acre-total' ? 0 : '—');
+        setMetricValue(element, id === 'acre-total' ? 0 : '—');
       });
       return;
     }
@@ -210,10 +170,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const fraction = (total % scale).toString().padStart(digits, '0');
       return `${whole}.${fraction}`;
     };
-    animateValue($('#acre-total'), acreResults.length);
+    setMetricValue($('#acre-total'), acreResults.length);
     $('#acre-total-area').textContent = sumFixed(acreResults, 'acres', 4);
     $('#acre-total-sqft').textContent = sumFixed(acreResults, 'square_feet', 2);
-    $$('.acre-summary .summary-card').forEach(flash);
   };
 
   const parseDomRows = (input) => {
@@ -257,13 +216,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const themeToggle = $('[data-theme-toggle]');
   try {
-    if (localStorage.getItem('estatiq-theme') === 'light') document.body.classList.add('light-theme');
+    if (localStorage.getItem('estatiq-theme') === 'dark') document.body.classList.add('dark-theme');
+    themeToggle?.setAttribute('aria-pressed', String(document.body.classList.contains('dark-theme')));
     themeToggle?.addEventListener('click', () => {
-      document.body.classList.toggle('light-theme');
-      localStorage.setItem('estatiq-theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+      const isDark = document.body.classList.toggle('dark-theme');
+      themeToggle.setAttribute('aria-pressed', String(isDark));
+      localStorage.setItem('estatiq-theme', isDark ? 'dark' : 'light');
     });
   } catch (error) {
-    themeToggle?.addEventListener('click', () => document.body.classList.toggle('light-theme'));
+    themeToggle?.addEventListener('click', () => {
+      const isDark = document.body.classList.toggle('dark-theme');
+      themeToggle.setAttribute('aria-pressed', String(isDark));
+    });
   }
 
   $$('.tab-button').forEach((button) => {
@@ -362,15 +326,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const renderSingleAcre = (result) => {
     const value = $('#acre-single-sqft');
-    value.style.opacity = '0.25';
-    value.style.transform = 'translateY(3px)';
-    window.setTimeout(() => {
-      value.textContent = Number(result.square_feet).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      $('#acre-single-acres').textContent = `${result.acres} acres`;
-      value.style.opacity = '1';
-      value.style.transform = 'translateY(0)';
-      flash(value);
-    }, 100);
+    value.textContent = Number(result.square_feet).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    $('#acre-single-acres').textContent = `${result.acres} acres`;
   };
 
   const acreSingleForm = $('#acre-single-form');
@@ -430,31 +387,4 @@ document.addEventListener('DOMContentLoaded', () => {
   renderDomResults();
   renderAcreResults();
   calculateSingleAcre().catch((error) => showToast(error.message));
-
-  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  if (finePointer.matches && !reducedMotion.matches) {
-    let pointerFrame = 0;
-    let pointerX = 0;
-    let pointerY = 0;
-    document.addEventListener('pointermove', (event) => {
-      pointerX = event.clientX;
-      pointerY = event.clientY;
-      if (pointerFrame) return;
-      pointerFrame = requestAnimationFrame(() => {
-        document.documentElement.style.setProperty('--pointer-x', `${pointerX}px`);
-        document.documentElement.style.setProperty('--pointer-y', `${pointerY}px`);
-        document.body.classList.add('pointer-active');
-        pointerFrame = 0;
-      });
-    }, { passive: true });
-
-    $$('.input-panel, .summary-card').forEach((card) => {
-      card.addEventListener('pointermove', (event) => {
-        const bounds = card.getBoundingClientRect();
-        card.style.setProperty('--card-x', `${event.clientX - bounds.left}px`);
-        card.style.setProperty('--card-y', `${event.clientY - bounds.top}px`);
-      }, { passive: true });
-    });
-  }
 });
