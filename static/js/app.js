@@ -215,18 +215,25 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const themeToggle = $('[data-theme-toggle]');
+  const themeColor = $('meta[name="theme-color"]');
+  const syncThemeColor = () => {
+    themeColor?.setAttribute('content', getComputedStyle(document.body).getPropertyValue('--page').trim());
+  };
   try {
     if (localStorage.getItem('estatiq-theme') === 'dark') document.body.classList.add('dark-theme');
     themeToggle?.setAttribute('aria-pressed', String(document.body.classList.contains('dark-theme')));
+    syncThemeColor();
     themeToggle?.addEventListener('click', () => {
       const isDark = document.body.classList.toggle('dark-theme');
       themeToggle.setAttribute('aria-pressed', String(isDark));
+      syncThemeColor();
       localStorage.setItem('estatiq-theme', isDark ? 'dark' : 'light');
     });
   } catch (error) {
     themeToggle?.addEventListener('click', () => {
       const isDark = document.body.classList.toggle('dark-theme');
       themeToggle.setAttribute('aria-pressed', String(isDark));
+      syncThemeColor();
     });
   }
 
